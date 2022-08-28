@@ -16,3 +16,10 @@ $ docker run --cap-add SYSLOG -p 514:514 -p 514:514/udp --name rsyslog docker-sy
 ### Referencia.
 
 * Dockerize Rsyslog Server [enlace.](https://itnext.io/dockerize-rsyslog-server-f8f9754c37d5)
+
+## Autores ✒️
+
+* **Moisés Jiménez** - *Trabajo Inicial* - [nanyhel](https://github.com/nanyhel)
+
+---
+⌨️ con ❤️ por [nanyhel](https://github.com/nanyhel) 😊
