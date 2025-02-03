@@ -1,15 +1,12 @@
-name: docker build
+name: Build and Push Docker Image
 
 on:
   push:
     branches:
       - develop
-  
+
 jobs:
   build-and-push:
-    env:
-      username: ${{secrets.DOCKER_HUB_USERNAME}}
-      token: ${{secrets.DOCKER_HUB_TOKEN}}
     runs-on: ubuntu-latest
 
     steps:
@@ -19,11 +16,11 @@ jobs:
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
       with:
-        username: ${{env.username}}
-        token: ${{env.token}}
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
     - name: Build Docker image
-      run: docker build -t ${{env.username}}/rsyslog-server:latest .
+      run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/rsyslog-server:latest .
 
     - name: Push Docker image
-      run: docker push ${{env.username}}/rsyslog-server:latest
+      run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/rsyslog-server:latest
