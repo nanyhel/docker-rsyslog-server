@@ -1,13 +1,26 @@
-FROM ubuntu:24.04
+FROM alpine:3.19
 
-RUN apt update && apt install rsyslog -y
+# Instalar rsyslog y dependencias necesarias
+RUN apk add --no-cache rsyslog tzdata
 
-RUN echo '$ModLoad imudp \n\
-$UDPServerRun 514 \n\
-$ModLoad imtcp \n\
-$InputTCPServerRun 514 \n\
-$template RemoteStore, "/var/log/remote/%HOSTNAME%/%$year%%$Month%%$Day%.log" \n\
-:source, !isequal, "localhost" -?RemoteStore \n\
-:source, isequal, "last" ~ ' > /etc/rsyslog.conf
+# Crear directorio para logs remotos
+RUN mkdir -p /var/log/remote
 
+# Configurar rsyslog para recibir logs remotos
+RUN echo '$ModLoad imudp' > /etc/rsyslog.conf && \
+    echo '$UDPServerRun 514' >> /etc/rsyslog.conf && \
+    echo '$ModLoad imtcp' >> /etc/rsyslog.conf && \
+    echo '$InputTCPServerRun 514' >> /etc/rsyslog.conf && \
+    echo '$template RemoteStore, "/var/log/remote/%HOSTNAME%/%$year%%$month%%$day%.log"' >> /etc/rsyslog.conf && \
+    echo ':source, !isequal, "localhost" -?RemoteStore' >> /etc/rsyslog.conf && \
+    echo ':source, isequal, "last" ~' >> /etc/rsyslog.conf
+
+# Exponer puertos para UDP y TCP
+EXPOSE 514/udp 514/tcp
+
+# Agregar health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+    CMD netstat -ln | grep :514 || exit 1
+
+# Ejecutar rsyslog en foreground
 ENTRYPOINT ["rsyslogd", "-n"]
